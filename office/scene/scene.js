@@ -13,6 +13,7 @@ import { Actor } from './actor.js';
 import { generateBlob } from './blobgen.js';
 import { Spring, clamp } from './spring.js';
 import { sofiaHour, fontsPromise } from './walls.js';
+import { applyStandoutTheme, addFacadeToScene } from './standout.js';
 
 // Relative to the page (not the site root), so the office works when published in a sub-folder.
 const ASSETS = '../assets';
@@ -113,7 +114,9 @@ export function initScene(el, cbs = {}) {
 
   officeAssets.then((a) => {
     assets = a;
+    applyStandoutTheme(a, scene);
     building = new Building({ scene, daylight, assets: a, baseUrl: `${ASSETS}/office`, renderer });
+    addFacadeToScene(a, scene);
     daylight.setBuilding(building);                        // sun stripes on the active floor, ambient tint of the baked surfaces
     a.spots.lounges.forEach((s) => { if (s) s.lounge = true; });
     window.bothq = Object.assign(window.bothq || {}, { source: a.source });
