@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Standout - Bot office</title>
+  <meta name="description" content="A live 3D office of your bots: who is working, who waits for you, what got done.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="../assets/brand/standout/orb.svg">
+  <link rel="apple-touch-icon" href="../assets/brand/standout/app-icon.png">
+  <meta name="theme-color" content="#F3F4F6">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./scene/scene.css">
+  <link rel="stylesheet" href="./ui/ui.css">
+  <link rel="stylesheet" href="./share/share.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <!-- the two big downloads start with the page, not after the scripts that ask for them (after the import map) -->
+  <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js">
+  <link rel="preload" href="../assets/office/office.glb" as="fetch" crossorigin>
+</head>
+<body>
+  <main id="scene" aria-label="Office"><div class="hq-loading" role="status"><span class="hq-loading-label">Building the office</span><span class="hq-loading-track"><i></i></span></div></main>
+  <header id="topbar"></header>
+  <nav id="floors" aria-label="Floors"></nav>
+  <aside id="panel" aria-label="Bot card and floor team"></aside>
+  <section id="feed" aria-label="Event feed"></section>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
