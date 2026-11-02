@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200">
+  <title>Standout</title>
+  <defs>
+    <linearGradient id="bg" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="510" y2="510">
+      <stop offset="0" stop-color="#666666"/>
+      <stop offset="1" stop-color="#000000"/>
+    </linearGradient>
+    <linearGradient id="orb" gradientUnits="userSpaceOnUse" x1="488.76" y1="302.16" x2="738.66" y2="683.32">
+      <stop offset="0" stop-color="#F05A5A"/>
+      <stop offset="0.3631" stop-color="#9F6CEB"/>
+      <stop offset="0.7516" stop-color="#6CF62C"/>
+      <stop offset="1" stop-color="#EAFE86"/>
+    </linearGradient>
+    <clipPath id="circle">
+      <circle cx="600" cy="600" r="600"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#circle)">
+    <rect width="1200" height="1200" fill="url(#bg)"/>
+    <g transform="matrix(1.0029 0 0 1 -1.753 0)">
+      <path fill="#FFFFFF" d="M76.25 1200L89.01 1106.01C108 966.19 234.63 795.8 415.85 795.8H434.4A363.83 363.83 0 0 0 765.6 795.8H784.15C965.37 795.8 1092 966.19 1110.99 1106.01L1123.75 1200Z"/>
+      <circle cx="600" cy="471.83" r="263.83" fill="url(#orb)"/>
+      <circle cx="688.91" cy="376.87" r="135.65" fill="#FFFFFF"/>
+    </g>
+  </g>
+</svg>

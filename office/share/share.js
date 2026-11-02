@@ -14,7 +14,7 @@ import { sfx } from '../audio/sound.js';
 
 const W = 1600, H = 900;
 const SUPERSAMPLE = 1.5;                               // desktop only: phones render at 1x (GPU memory)
-const MARK_SRC = new URL('../../assets/brand/logo-mark.png', import.meta.url).href;
+const MARK_SRC = new URL('../../assets/brand/standout/orb.svg', import.meta.url).href;
 const FILE_NAME = 'standout-bot-office.png';
 const POST_TEXT = 'My bot office';
 const INK = '#16171A', GREY = '#7A7B82', WORKING = '#34C759';

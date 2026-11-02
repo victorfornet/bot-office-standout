@@ -11,20 +11,21 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
-// Wool-and-ceramic colours (sRGB): sage, eucalyptus, slate, lilac, mauve, clay, ochre.
-export const ACCENTS = ['#9CAA93', '#86A4A1', '#8E9DB1', '#A49EB9', '#BB9CA6', '#C79F89', '#CDB27F'];
+// Standout palette: forest, mint, teal, coral, violet, sage, ochre.
+export const ACCENTS = ['#264A36', '#34D399', '#86A4A1', '#F05A5A', '#9F6CEB', '#89968C', '#CDB27F'];
 export const LAYOUTS = ['sofa', 'media', 'library', 'meeting'];
 
 const SUN = [0.85, 1.25];                 // floor offset of a shadow per metre of height, read off the baked floor
 const SHADOW_RGB = '26,30,42';             // cool near-black, like the studio shadow
 const PLUME_A = 0.3;                       // a baked sweep shadow darkens the floor by about 30 %
-const FLOOR_RGB = [240, 235, 227];         // the baked floor around the lounge
+const FLOOR_RGB = [82, 62, 48];            // dark walnut wood floor (Standout loft)
 const ZONE = { x0: 3.03, x1: 8.0, z0: -0.12, z1: 4.7 };   // clean patch over the GLB lounge's baked shadows
 const DROPS = [[4.13, -0.3], [4.13, 3.9]]; // baked shadows of two desk pendants, partly inside the patch
 const PPM = 128, SPPM = 64;                // px per metre: patch and rug textures, shadow layers
 const RUG_H = 0.012;
 const GLB_LOUNGE = ['sofa', 'armchair_1', 'armchair_2', 'coffee_table'];
-const FALLBACK = { oak: '#D9C39F', black: '#1C1C1E', graphite: '#3A3A3C', fabric_warm: '#C9C5BE', fabric_light: '#E2DFDA', pot_white: '#F1EFEB', bar_white: '#EBE9E4' };
+const FALLBACK = { oak: '#D9C39F', black: '#1C1C1E', graphite: '#3A3A3C', fabric_warm: '#C9C5BE', fabric_light: '#E2DFDA', pot_white: '#F1EFEB', bar_white: '#EBE9E4',
+  royal_blue: '#1B3A8C', mustard: '#D4A017', salmon: '#E88B7A', teal_velvet: '#2A7B8B' };
 const BOOKS = ['#ECE6DA', '#D3CABA', '#ABA294', '#6B6762', '#36363A', '#BCA680'];
 const WHITE = new THREE.Color(1, 1, 1);
 const WOOL = new THREE.Color('#F2EEE6');
@@ -192,7 +193,7 @@ function corner(k, open, name, build) {
 
 // ---------------- the four corners ----------------
 
-// The GLB's own lounge: two accent cushions on the sofa and the baked round rug tinted in the accent.
+// Standout loft lounge: accent cushions on the sofa, disco balls hanging from the ceiling, tinted zebra rug.
 function sofaExtras(k, open) {
   const g = new THREE.Group();
   g.name = 'style_sofa';
@@ -205,7 +206,26 @@ function sofaExtras(k, open) {
   const disc = k.add(g, new THREE.CircleGeometry(2.205, 128).rotateX(-Math.PI / 2), tintMat, 5.3, 0.0015, 2.3);
   disc.userData.keep = true;
   disc.renderOrder = -1;
+  addDiscoBalls(k, g);
   open.add(g);
+}
+
+function addDiscoBalls(k, parent) {
+  const discoMat = new THREE.MeshStandardMaterial({ color: 0xE8E8E8, metalness: 0.95, roughness: 0.08, name: 'disco_ball' });
+  const wireMat = k.plain('disco_wire', '#2A2A2A', 0.4);
+  const positions = [
+    [4.6, 2.35, 1.2, 0.18], [5.5, 2.5, 2.0, 0.22], [6.3, 2.3, 0.8, 0.15],
+    [5.0, 2.45, 3.2, 0.2], [6.8, 2.38, 2.6, 0.16], [5.9, 2.55, 1.5, 0.24],
+    [4.2, 2.42, 2.8, 0.14], [7.2, 2.48, 1.8, 0.17],
+  ];
+  for (const [x, ceilY, z, r] of positions) {
+    const ball = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 2), discoMat);
+    ball.position.set(x, ceilY, z);
+    parent.add(ball);
+    const wire = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 2.7 - ceilY + r, 4), wireMat);
+    wire.position.set(x, (2.7 + ceilY + r) / 2, z);
+    parent.add(wire);
+  }
 }
 
 // Media corner: a large screen on a low console along the left edge, two armchairs turned to it, a bench at the back.
@@ -262,25 +282,41 @@ function libraryCorner(k, g, ctx) {
   return [[3.97, 0.46, 1.3, Math.PI / 2], [3.97, 0.46, 2.15, Math.PI / 2], [3.97, 0.46, 3.0, Math.PI / 2], seatAt(cx, cz, yaw, 0.48, 0.05), [5.75, 0.41, 3.72, 0.3]];
 }
 
-// Meeting table: an oak racetrack top on two pedestals, three chairs on the far side, one at each end, two tucked in.
+// Standout meeting room: long white table with ghost chairs, two geometric copper pendant lamps.
 function meetingCorner(k, g, ctx) {
-  const oak = k.mat('oak'), black = k.mat('black');
-  const cx = 5.55, cz = 2.05, L = 2.4, W = 1.1, top = 0.74;
-  const geo = new THREE.ExtrudeGeometry(roundRect(L, W, W / 2), { depth: 0.024, bevelEnabled: true, bevelThickness: 0.006, bevelSize: 0.006, bevelSegments: 2, curveSegments: 16 });
-  geo.rotateX(Math.PI / 2);                                  // shape xy -> floor xz, extruded downwards
-  k.add(g, geo, oak, cx, top - 0.006, cz);
+  const white = k.mat('bar_white'), black = k.mat('black');
+  const copperMat = k.plain('copper', '#B87333', 0.3);
+  const ghostMat = new THREE.MeshStandardMaterial({ color: 0xD6E4EE, roughness: 0.05, transparent: true, opacity: 0.28, side: THREE.DoubleSide, depthWrite: false, name: 'ghost_chair' });
+  const cx = 5.55, cz = 2.05, L = 3.0, W = 0.95, top = 0.74;
+  const geo = new THREE.ExtrudeGeometry(roundRect(L, W, 0.06), { depth: 0.03, bevelEnabled: true, bevelThickness: 0.005, bevelSize: 0.005, bevelSegments: 2, curveSegments: 8 });
+  geo.rotateX(Math.PI / 2);
+  k.add(g, geo, white, cx, top - 0.008, cz);
   for (const s of [-1, 1]) {
-    k.add(g, new THREE.CylinderGeometry(0.04, 0.04, top - 0.05, 20), black, cx + s * 0.62, (top - 0.05) / 2 + 0.012, cz);
-    k.add(g, k.rbox(0.09, 0.024, 0.74, 0.01), black, cx + s * 0.62, 0.012, cz);
-    ctx.shadows.push({ pts: rect(cx + s * 0.62, cz, 0.08, 0.08), y0: 0, y1: top - 0.04 }, { pts: rect(cx + s * 0.62, cz, 0.09, 0.74), core: 0.55, blur: 0.02 });
+    k.add(g, new THREE.CylinderGeometry(0.035, 0.035, top - 0.05, 16), k.plain('chrome_leg', '#C0C0C0', 0.15), cx + s * 0.9, (top - 0.05) / 2 + 0.012, cz);
+    ctx.shadows.push({ pts: rect(cx + s * 0.9, cz, 0.07, 0.07), y0: 0, y1: top - 0.04 });
   }
-  ctx.shadows.push({ pts: roundRect(L, W, W / 2).getPoints(12).map((p) => [cx + p.x, cz - p.y]), y0: top - 0.036, y1: top });
+  ctx.shadows.push({ pts: roundRect(L, W, 0.06).getPoints(12).map((p) => [cx + p.x, cz - p.y]), y0: top - 0.036, y1: top });
 
   const seats = [];
-  for (const x of [cx - 0.8, cx, cx + 0.8]) { chair(k, g, ctx, x, cz - W / 2 - 0.47, 0); seats.push([x, 0.47, cz - W / 2 - 0.47, 0]); }
-  chair(k, g, ctx, cx - L / 2 - 0.5, cz, Math.PI / 2); seats.push([cx - L / 2 - 0.5, 0.47, cz, Math.PI / 2]);
-  chair(k, g, ctx, cx + L / 2 + 0.5, cz, -Math.PI / 2); seats.push([cx + L / 2 + 0.5, 0.47, cz, -Math.PI / 2]);
-  for (const x of [cx - 0.42, cx + 0.42]) chair(k, g, ctx, x, cz + W / 2 + 0.3, Math.PI);
+  const ghostChair = (x, z, yaw) => {
+    const c = k.group(g, x, z, yaw);
+    k.add(c, k.rbox(0.42, 0.06, 0.42, 0.02), ghostMat, 0, 0.44, 0);
+    k.add(c, k.rbox(0.4, 0.38, 0.04, 0.016), ghostMat, 0, 0.72, -0.19, 0, -0.08);
+    const leg = new THREE.CylinderGeometry(0.009, 0.009, 0.41, 8);
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) k.add(c, leg, ghostMat, sx * 0.17, 0.205, sz * 0.17);
+    ctx.shadows.push({ pts: rect(x, z, 0.44, 0.44, yaw), y0: 0.4, y1: 0.5, core: 0.1, blur: 0.06 });
+  };
+  for (const x of [cx - 1.0, cx - 0.2, cx + 0.6]) { ghostChair(x, cz - W / 2 - 0.47, 0); seats.push([x, 0.47, cz - W / 2 - 0.47, 0]); }
+  ghostChair(cx - L / 2 - 0.5, cz, Math.PI / 2); seats.push([cx - L / 2 - 0.5, 0.47, cz, Math.PI / 2]);
+  ghostChair(cx + L / 2 + 0.5, cz, -Math.PI / 2); seats.push([cx + L / 2 + 0.5, 0.47, cz, -Math.PI / 2]);
+
+  for (const s of [-0.7, 0.7]) {
+    const lampY = 2.1, lr = 0.22;
+    const sphere = new THREE.IcosahedronGeometry(lr, 1);
+    k.add(g, sphere, copperMat, cx + s, lampY, cz);
+    k.add(g, new THREE.CylinderGeometry(0.005, 0.005, 2.7 - lampY + lr, 4), black, cx + s, (2.7 + lampY + lr) / 2, cz);
+  }
+
   ctx.rug = { kind: 'rect', x0: 3.35, z0: 0.42, x1: 7.75, z1: 3.68, r: 0.08 };
   return seats;
 }
@@ -456,14 +492,29 @@ function rugTexture(spec, bb, layers, light = null) {
   });
 }
 
-// Near-white wool with a faint weave and a fine bound line 18 cm in from the edge (the accent comes from the material).
+// Zebra-print rug inspired by the Standout loft. Black/cream organic stripes with a thin border.
 function paintRug(g, W, H, spec, bb, layers, shadowK) {
-  g.fillStyle = 'rgb(247,247,246)';
+  g.fillStyle = 'rgb(245,242,235)';
   g.fillRect(0, 0, W, H);
-  grain(g, W, H, 7, 5);
-  const inset = 0.18 * PPM;
-  g.strokeStyle = 'rgba(0,0,0,0.07)';
-  g.lineWidth = 1.5;
+  const rnd = mulberry(42);
+  g.fillStyle = '#1A1A1A';
+  const stripes = Math.max(6, Math.round(W / 28));
+  for (let i = 0; i < stripes; i++) {
+    g.beginPath();
+    const cx = (i + 0.5) / stripes * W + (rnd() - 0.5) * 18;
+    const sw = 8 + rnd() * 14;
+    const pts = [];
+    for (let y = -10; y <= H + 10; y += 6) pts.push([cx + Math.sin(y * 0.015 + i * 1.7) * (sw + rnd() * 8), y]);
+    g.moveTo(pts[0][0] - sw / 2, pts[0][1]);
+    for (const [px, py] of pts) g.lineTo(px - sw / 2, py);
+    for (let j = pts.length - 1; j >= 0; j--) g.lineTo(pts[j][0] + sw / 2, pts[j][1]);
+    g.closePath();
+    g.fill();
+  }
+  grain(g, W, H, 4, 0);
+  const inset = 0.12 * PPM;
+  g.strokeStyle = 'rgba(0,0,0,0.15)';
+  g.lineWidth = 2;
   g.beginPath();
   if (spec.kind === 'round') g.arc(W / 2, H / 2, W / 2 - inset, 0, Math.PI * 2);
   else roundRectPath(g, inset, inset, W - inset * 2, H - inset * 2, Math.max(2, spec.r * PPM - inset * 0.3));
@@ -478,9 +529,9 @@ function patchTexture(layers, light = null) {
     if (light) g.drawImage(fieldCanvas(light, ZONE), 0, 0, W, H);
     else { g.fillStyle = `rgb(${FLOOR_RGB.join(',')})`; g.fillRect(0, 0, W, H); }
     grain(g, W, H, 3, 0);
-    g.fillStyle = 'rgba(60,50,40,0.035)';                    // stone joints every 1.6 m x 1.5 m, as in the bake
-    for (let x = -8; x <= 8; x += 1.6) if (x > ZONE.x0 && x < ZONE.x1) g.fillRect(Math.round((x - ZONE.x0) * PPM), 0, 1, H);
-    for (let z = -6; z <= 6; z += 1.5) if (z > ZONE.z0 && z < ZONE.z1) g.fillRect(0, Math.round((z - ZONE.z0) * PPM), W, 1);
+    g.fillStyle = 'rgba(30,20,14,0.06)';                     // dark wood plank lines
+    for (let x = -8; x <= 8; x += 0.15) if (x > ZONE.x0 && x < ZONE.x1) g.fillRect(Math.round((x - ZONE.x0) * PPM), 0, 1, H);
+    for (let z = -6; z <= 6; z += 1.8) if (z > ZONE.z0 && z < ZONE.z1) g.fillRect(0, Math.round((z - ZONE.z0) * PPM), W, 1);
     drawLayers(g, layers, ZONE, light ? NIGHT_SHADOW : 1);
   });
 }

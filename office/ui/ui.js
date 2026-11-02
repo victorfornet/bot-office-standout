@@ -28,7 +28,7 @@
 // Resolved against this file, so it works from /web/index.html, from a server rooted at web/, and from the harness.
 const THUMB_BASE = new URL('../../assets/blobs/thumbs/', import.meta.url).href;
 // the product logo, exactly as is (a 400x400 square), shown small in the brand pill
-const MARK_SRC = new URL('../../assets/brand/logo-mark.png', import.meta.url).href;
+const MARK_SRC = new URL('../../assets/brand/standout/orb.svg', import.meta.url).href;
 const FEED_ROWS = 4;
 const STEPS_SHOWN = 3;
 const FEED_OUT_MS = 420;

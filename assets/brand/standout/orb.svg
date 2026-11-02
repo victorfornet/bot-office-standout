@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <title>Standout</title>
+  <defs>
+    <linearGradient id="orb" gradientUnits="userSpaceOnUse" x1="289.18" y1="178.44" x2="762.77" y2="900.79">
+      <stop offset="0" stop-color="#F05A5A"/>
+      <stop offset="0.3631" stop-color="#9F6CEB"/>
+      <stop offset="0.7516" stop-color="#6CF62C"/>
+      <stop offset="1" stop-color="#EAFE86"/>
+    </linearGradient>
+  </defs>
+  <g>
+  <circle cx="500" cy="500" r="500" fill="url(#orb)"/>
+  <circle cx="668.5" cy="320.04" r="257.08" fill="#FFFFFF"/>
+  </g>
+</svg>

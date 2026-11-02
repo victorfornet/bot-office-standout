@@ -46,9 +46,11 @@ The page reads JSON lines from ntfy.sh. Each message is one JSON object:
 
 ### 1. Colors (easiest)
 
+- **Floor accent palette** (Standout forest/mint/coral/violet): the `ACCENTS` array at the top of `office/scene/floorstyle.js`.
 - **Status colors** (working green, waiting amber, error red, etc.): edit the CSS custom properties in `office/styles.css` around line 49 (`--working`, `--waiting`, `--error`, `--stuck`, `--done`, `--idle`).
 - **Page background**: the gradient in `office/styles.css` under `body` and `#scene` (the `--bg-0`, `--bg-1`, `--bg-2` variables, around line 64).
 - **Card/panel theme**: the graphite surface base colour in `office/ui/ui.css` line 66 (`--base: #232327`). Each status also tints the card — those overrides follow immediately.
+- **Sofa/chair colours** (placeholder): in `office/scene/office.js`, the `M` materials object (`sofa`, `armchair`, `salmon`).
 
 ### 2. Bot shapes and avatars
 
@@ -56,18 +58,20 @@ The page reads JSON lines from ntfy.sh. Each message is one JSON object:
 - Avatar thumbnails live in `assets/blobs/thumbs/` (one PNG per bot id) and `assets/blobs/lib/` (shape+color combos).
 - To add a custom avatar for a bot, drop a `<bot-id>.png` into `assets/blobs/thumbs/`.
 
-### 3. Floor layout and building
+### 3. Floor layout, building, and Standout decor
 
 - The 3D office model is `assets/office/office.glb`.
 - Floor stacking, desk placement and camera framing are in `office/scene/building.js`.
-- The floor decoration (rugs, plants, colour scheme per floor) is in `office/scene/floorstyle.js`.
+- The floor decoration is in `office/scene/floorstyle.js`: zebra-print rugs, disco balls, ghost chairs in the meeting corner, Standout accent palette.
+- Disco ball positions/sizes: in `floorstyle.js` (`addDiscoBalls`) and `office.js` (`discoBalls` array).
+- The neon "STANDOUT" wall sign: in `office/scene/office.js`, search for `neonTex`.
 
 ### 4. Page title and branding
 
 - HTML title: `office/index.html`, the `<title>` tag.
 - The brand pill text in the top-left: `office/ui/ui.js`, search for `bhq-word`.
 - The share image caption: `office/share/share.js`, the `caption()` function.
-- The logo mark: replace `assets/brand/logo-mark.png`.
+- The logo: Standout orb/mark SVGs in `assets/brand/standout/`. The header and favicon use `orb.svg`.
 
 ### 5. Fonts
 

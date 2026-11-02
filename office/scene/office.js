@@ -157,9 +157,11 @@ function buildPlaceholder() {
   const M = {
     white: stdMat(0xF4F3F0, 0.8), oak: stdMat(0xC9A57C, 0.6), black: stdMat(0x1C1C1E, 0.45, 0.3),
     fabric: stdMat(0xDAD6CF, 1), laptop: stdMat(0xC9CCD0, 0.35, 0.75),
-    sofa: stdMat(0xCDC9C1, 0.95), armchair: stdMat(0x3A3A3E, 0.8), pot: stdMat(0xF6F5F2, 0.55),
+    sofa: stdMat(0x1B3A8C, 0.95), armchair: stdMat(0xD4A017, 0.8), pot: stdMat(0xF6F5F2, 0.55),
     leaf1: stdMat(0x3C7B47, 0.75), leaf2: stdMat(0x5A9A58, 0.75), leaf3: stdMat(0x2F6A3E, 0.75), trunk: stdMat(0x6B4F3A, 0.8),
     mug: stdMat(0xFFFFFF, 0.4), counter: stdMat(0xEAE7E1, 0.6),
+    disco: stdMat(0xE8E8E8, 0.08, 0.95),
+    salmon: stdMat(0xE88B7A, 0.85),
     glass: new THREE.MeshStandardMaterial({ color: 0xD6E4EE, roughness: 0.05, transparent: true, opacity: 0.14, side: THREE.DoubleSide, depthWrite: false }),
     shaftGlass: new THREE.MeshStandardMaterial({ color: 0xD6E4EE, roughness: 0.05, transparent: true, opacity: 0.16, side: THREE.DoubleSide, depthWrite: false }),
   };
@@ -210,6 +212,19 @@ function buildPlaceholder() {
   mkWallQuad('wall_screen', 2.6, 1.46, -4.3, 1.5);
   mkWallQuad('task_board', 3.0, 1.5, 0.1, 1.45);
   for (const [w, h, z, y] of [[2.68, 1.54, -4.3, 1.5], [3.08, 1.58, 0.1, 1.45]]) addBox(open, M.black, 0.03, h, w, -7.985, y, z);
+
+  // Standout neon sign on the left wall
+  const neonTex = canvasTex(512, 128, (g, w, h) => {
+    g.fillStyle = '#1C1C1E'; g.fillRect(0, 0, w, h);
+    g.save(); g.shadowColor = '#34D399'; g.shadowBlur = 20;
+    g.fillStyle = '#34D399'; g.font = 'bold 64px Inter, system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText('STANDOUT', w / 2, h / 2);
+    g.fillText('STANDOUT', w / 2, h / 2);
+    g.restore();
+  });
+  const neon = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.55).rotateY(Math.PI / 2), new THREE.MeshBasicMaterial({ map: neonTex, toneMapped: false }));
+  neon.position.set(-7.955, 2.0, 3.8);
+  open.add(neon);
 
   // two long oak communal tables, 5 poufs per side
   const lap = [];
@@ -264,24 +279,43 @@ function buildPlaceholder() {
     empty(open, `lamp_${String(i + 1).padStart(2, '0')}`, x, 1.95, z);
   });
 
-  // lounge: block sofa, 2 armchairs, round oak coffee table, bar with a stool
+  // Standout lounge: royal blue sectional sofa, mustard/salmon armchairs, white coffee table, disco balls
   addBox(open, M.sofa, 2.7, 0.42, 0.95, 5.9, 0.21, 0.05);
   addBox(open, M.sofa, 2.7, 0.52, 0.24, 5.9, 0.68, -0.36);
   for (const s of [-1, 1]) addBox(open, M.sofa, 0.26, 0.62, 0.95, 5.9 + s * 1.22, 0.31 + 0.1, 0.05);
-  for (let i = 0; i < 3; i++) addBox(open, M.sofa, 0.8, 0.1, 0.66, 5.05 + i * 0.85, 0.47, 0.12);
+  // teal/orange cushions on the blue sofa
+  for (let i = 0; i < 3; i++) {
+    const cushionMat = i === 1 ? stdMat(0x2A7B8B, 0.9) : stdMat(0xE07030, 0.9);
+    addBox(open, cushionMat, 0.8, 0.1, 0.66, 5.05 + i * 0.85, 0.47, 0.12);
+  }
   [[5.05, 0], [5.9, 1], [6.75, 2]].forEach(([x], i) => empty(open, `lounge_0${i + 1}`, x, 0.52, 0.12, 0));
-  const chair = (x, yaw, name) => {
+  const chair = (x, yaw, name, mat) => {
     const g = new THREE.Group();
     g.position.set(x, 0, 2.1);
     g.rotation.y = yaw;
-    addBox(g, M.armchair, 0.9, 0.38, 0.9, 0, 0.19, 0);
-    addBox(g, M.armchair, 0.2, 0.55, 0.9, -0.35, 0.55, 0);
-    for (const s of [-1, 1]) addBox(g, M.armchair, 0.9, 0.2, 0.14, 0, 0.5, s * 0.38);
+    addBox(g, mat, 0.9, 0.38, 0.9, 0, 0.19, 0);
+    addBox(g, mat, 0.2, 0.55, 0.9, -0.35, 0.55, 0);
+    for (const s of [-1, 1]) addBox(g, mat, 0.9, 0.2, 0.14, 0, 0.5, s * 0.38);
     open.add(g);
     empty(open, name, x, 0.42, 2.1, yaw);
   };
-  chair(4.15, Math.PI / 2, 'lounge_04');
-  chair(7.65, -Math.PI / 2, 'lounge_05');
+  chair(4.15, Math.PI / 2, 'lounge_04', M.armchair);
+  chair(7.65, -Math.PI / 2, 'lounge_05', M.salmon);
+
+  // disco balls hanging from ceiling
+  const discoBalls = [
+    [4.6, 2.35, 1.2, 0.18], [5.5, 2.5, 2.0, 0.22], [6.3, 2.3, 0.8, 0.15],
+    [5.0, 2.45, 3.2, 0.2], [6.8, 2.38, 2.6, 0.16], [5.9, 2.55, 1.5, 0.24],
+    [4.2, 2.42, 2.8, 0.14], [7.2, 2.48, 1.8, 0.17],
+    [-3.0, 2.4, -2.0, 0.19], [-1.0, 2.5, -1.5, 0.21], [1.0, 2.35, -3.0, 0.16],
+    [-4.5, 2.45, 0.5, 0.18], [2.5, 2.42, 1.0, 0.2],
+  ];
+  for (const [bx, by, bz, br] of discoBalls) {
+    const ball = new THREE.Mesh(new THREE.IcosahedronGeometry(br, 2), M.disco);
+    ball.position.set(bx, by, bz);
+    open.add(ball);
+    addCyl(open, M.black, 0.006, 0.006, 2.7 - by + br, bx, (2.7 + by + br) / 2, bz, 4);
+  }
   addCyl(open, M.oak, 0.6, 0.6, 0.04, 5.9, 0.38, 2.1, 40);
   addCyl(open, M.black, 0.04, 0.04, 0.36, 5.9, 0.18, 2.1, 10);
   addBox(open, M.counter, 3.6, 1.0, 0.6, 6.0, 0.5, -5.6);
@@ -390,50 +424,75 @@ function bakeFloor() {
     ['rect', 6.0, -5.6, 3.7, 0.7], ['circle', -7.2, 5.2, 0.4, 0.4], ['circle', 7.6, -3.4, 0.35, 0.35], ['circle', 7.5, 5.0, 0.4, 0.4]);
 
   const day = canvasTex(W, H, (g) => {
-    g.fillStyle = '#F0ECE5'; g.fillRect(0, 0, W, H);
+    g.fillStyle = '#523E30'; g.fillRect(0, 0, W, H);
     let grad = g.createLinearGradient(0, 0, W, H);
-    grad.addColorStop(0, '#E9E4DC'); grad.addColorStop(1, '#F6F3EE');
+    grad.addColorStop(0, '#4A3628'); grad.addColorStop(1, '#5C4638');
     g.fillStyle = grad; g.fillRect(0, 0, W, H);
-    // rug
-    g.fillStyle = '#DDD9D0'; g.beginPath(); g.arc(fx(5.9), fz(1.3), 2.25 * PX, 0, 7); g.fill();
-    g.fillStyle = '#E6E2DA'; g.beginPath(); g.arc(fx(5.9), fz(1.3), 1.75 * PX, 0, 7); g.fill();
-    // sun coming through the curtain wall: warm slanted patches across the floor
+    // wood grain: subtle horizontal lines
+    g.save(); g.globalAlpha = 0.12;
+    for (let y = 0; y < H; y += 3) {
+      g.fillStyle = y % 6 === 0 ? '#3A2A1E' : '#644C3C';
+      g.fillRect(0, y, W, 1);
+    }
+    g.restore();
+    // zebra rug area under lounge
+    g.fillStyle = '#F5F2EB'; g.beginPath(); g.arc(fx(5.9), fz(1.3), 2.25 * PX, 0, 7); g.fill();
+    g.fillStyle = '#1A1A1A';
+    const rng = mulberry(77);
+    for (let i = 0; i < 8; i++) {
+      const cx = fx(5.9) + (rng() - 0.5) * 3.6 * PX, cy = fz(1.3) + (rng() - 0.5) * 3.6 * PX;
+      g.beginPath();
+      for (let t = 0; t < 100; t++) {
+        const px = cx + Math.sin(t * 0.08 + i * 2) * (6 + rng() * 10) + t * 0.8;
+        const py = cy - 50 + t;
+        if (t === 0) g.moveTo(px, py); else g.lineTo(px, py);
+      }
+      g.lineWidth = 5 + rng() * 8; g.stroke();
+    }
+    // warm light from windows
     g.save(); g.filter = 'blur(18px)';
     for (let x = -8; x < 8; x += 2) {
-      g.fillStyle = 'rgba(255,250,238,0.55)';
+      g.fillStyle = 'rgba(255,220,180,0.25)';
       g.beginPath();
       g.moveTo(fx(x + 0.15), fz(-6)); g.lineTo(fx(x + 1.85), fz(-6));
       g.lineTo(fx(x + 1.85 + 5.2), fz(-6 + 3.9)); g.lineTo(fx(x + 0.15 + 5.2), fz(-6 + 3.9));
       g.fill();
     }
     g.restore();
-    softShadows(g, shadows, 'rgba(70,62,52,0.30)', 0.45, 0.55, 14);
-    softShadows(g, shadows, 'rgba(60,52,44,0.28)', 0, 0, 5);
-    const ao = g.createLinearGradient(0, 0, 130, 0); ao.addColorStop(0, 'rgba(90,80,70,0.30)'); ao.addColorStop(1, 'rgba(90,80,70,0)');
+    softShadows(g, shadows, 'rgba(20,15,10,0.35)', 0.45, 0.55, 14);
+    softShadows(g, shadows, 'rgba(15,10,8,0.30)', 0, 0, 5);
+    const ao = g.createLinearGradient(0, 0, 130, 0); ao.addColorStop(0, 'rgba(10,8,5,0.40)'); ao.addColorStop(1, 'rgba(10,8,5,0)');
     g.fillStyle = ao; g.fillRect(0, 0, 130, H);
-    const ao2 = g.createLinearGradient(0, 0, 0, 90); ao2.addColorStop(0, 'rgba(90,80,70,0.18)'); ao2.addColorStop(1, 'rgba(90,80,70,0)');
+    const ao2 = g.createLinearGradient(0, 0, 0, 90); ao2.addColorStop(0, 'rgba(10,8,5,0.25)'); ao2.addColorStop(1, 'rgba(10,8,5,0)');
     g.fillStyle = ao2; g.fillRect(0, 0, W, 90);
   });
 
   const night = canvasTex(W, H, (g) => {
-    g.fillStyle = '#222A3E'; g.fillRect(0, 0, W, H);
-    g.fillStyle = '#2A3248'; g.beginPath(); g.arc(fx(5.9), fz(1.3), 2.25 * PX, 0, 7); g.fill();
+    g.fillStyle = '#1A1218'; g.fillRect(0, 0, W, H);
+    g.fillStyle = '#221A24'; g.beginPath(); g.arc(fx(5.9), fz(1.3), 2.25 * PX, 0, 7); g.fill();
     g.save(); g.filter = 'blur(26px)';
     for (let x = -8; x < 8; x += 2) {
-      g.fillStyle = 'rgba(120,150,230,0.10)';
+      g.fillStyle = 'rgba(180,120,200,0.08)';
       g.beginPath();
       g.moveTo(fx(x + 0.15), fz(-6)); g.lineTo(fx(x + 1.85), fz(-6));
       g.lineTo(fx(x + 1.85 + 5.2), fz(-6 + 3.9)); g.lineTo(fx(x + 0.15 + 5.2), fz(-6 + 3.9));
       g.fill();
     }
     g.restore();
-    // warm pools under the pendants and the lounge
+    // warm/pink pools from disco ball reflections and pendants
     for (const [x, z] of PENDANTS.concat([[5.9, 1.2]])) {
       const r = 2.3 * PX, p = g.createRadialGradient(fx(x + 0.3), fz(z + 0.4), 0, fx(x + 0.3), fz(z + 0.4), r);
-      p.addColorStop(0, 'rgba(255,196,130,0.5)'); p.addColorStop(1, 'rgba(255,196,130,0)');
+      p.addColorStop(0, 'rgba(255,180,200,0.45)'); p.addColorStop(1, 'rgba(255,160,180,0)');
       g.fillStyle = p; g.fillRect(fx(x + 0.3) - r, fz(z + 0.4) - r, r * 2, r * 2);
     }
-    softShadows(g, shadows, 'rgba(5,7,14,0.55)', 0.35, 0.45, 12);
+    // disco ball sparkle dots scattered on the floor and walls
+    const drng = mulberry(99);
+    g.fillStyle = 'rgba(255,255,255,0.25)';
+    for (let i = 0; i < 60; i++) {
+      const dx = drng() * W, dy = drng() * H, ds = 1 + drng() * 3;
+      g.beginPath(); g.arc(dx, dy, ds, 0, Math.PI * 2); g.fill();
+    }
+    softShadows(g, shadows, 'rgba(5,3,8,0.55)', 0.35, 0.45, 12);
     const ao = g.createLinearGradient(0, 0, 130, 0); ao.addColorStop(0, 'rgba(0,0,0,0.45)'); ao.addColorStop(1, 'rgba(0,0,0,0)');
     g.fillStyle = ao; g.fillRect(0, 0, 130, H);
   });
